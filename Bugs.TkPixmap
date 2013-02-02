@@ -1,0 +1,39 @@
+Known bugs in TkPixmap:
+
+	- not really a bug... but people are asking whether
+	  it is possible to use pixmaps for the toplevel
+	  window icons... YES and NO! YES, because it is
+	  possible to do this directly with Tk as shown in
+	  the example wmColorIconPixmap.tcl (this seems to
+	  work on some window managers). NO, because I don't
+	  want to change Tk's internal icon bitmap routines
+	  to hide the special pixmap handling from the user.
+	  This would lead to an internal list of private
+	  windows used as icons (this is clumsy and as it
+	  can be done directly via Tk, I prefer not to
+	  change Tk).
+
+	- not really a bug (whow, it seems there are no real
+	  bugs in TkPixmap ;-). If you use pictures with
+	  many colors, it is important that the pixmap is
+	  loaded after Tk has allocated all colors it needs.
+	  While the pixmap loading routines try to reuse
+	  already allocated colors, Tk does not do that and
+	  changes to the monochrome model when there is no
+	  free color cell available (which is the case after
+	  loading pictures with many colors... at least at
+	  my 256 color station :-).
+
+	- The configuration and the Makefiles are not very
+	  robust. The automatic detection of dependencies
+	  is not completely implemented (especially across
+	  directories). So, if you want to rebuild the
+	  source tree, it is probably a good idea to call:
+
+		make clean
+
+	  first.
+
+	- If you build the wish with extended Tcl, you have
+          to set the TCL_LIBRARY path to the extended Tcl
+	  library path before you call the new wish.

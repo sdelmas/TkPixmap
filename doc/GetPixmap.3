@@ -1,0 +1,531 @@
+'\"
+'\" Copyright (c) 1993 by Sven Delmas
+'\" All rights reserved.
+'\" See the file COPYRIGHT for the copyright notes.
+'\"
+'\"
+'\" Copyright (c) 1990 The Regents of the University of California.
+'\" All rights reserved.
+'\"
+'\" Permission is hereby granted, without written agreement and without
+'\" license or royalty fees, to use, copy, modify, and distribute this
+'\" documentation for any purpose, provided that the above copyright
+'\" notice and the following two paragraphs appear in all copies.
+'\"
+'\" IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY
+'\" FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+'\" ARISING OUT OF THE USE OF THIS DOCUMENTATION, EVEN IF THE UNIVERSITY OF
+'\" CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+'\"
+'\" THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+'\" INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+'\" AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
+'\" ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATION TO
+'\" PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+'\" 
+'\" $Header: GetPixmap.3[11.0] Thu May  5 00:13:07 1994 garfield@mydomain.de frozen $
+'\" 
+.\" The definitions below are for supplemental macros used in Sprite
+.\" manual entries.
+.\"
+.\" .HS name section [date [version]]
+.\"	Replacement for .TH in other man pages.  See below for valid
+.\"	section names.
+.\"
+.\" .AP type name in/out [indent]
+.\"	Start paragraph describing an argument to a library procedure.
+.\"	type is type of argument (int, etc.), in/out is either "in", "out",
+.\"	or "in/out" to describe whether procedure reads or modifies arg,
+.\"	and indent is equivalent to second arg of .IP (shouldn't ever be
+.\"	needed;  use .AS below instead)
+.\"
+.\" .AS [type [name]]
+.\"	Give maximum sizes of arguments for setting tab stops.  Type and
+.\"	name are examples of largest possible arguments that will be passed
+.\"	to .AP later.  If args are omitted, default tab stops are used.
+.\"
+.\" .BS
+.\"	Start box enclosure.  From here until next .BE, everything will be
+.\"	enclosed in one large box.
+.\"
+.\" .BE
+.\"	End of box enclosure.
+.\"
+.\" .VS
+.\"	Begin vertical sidebar, for use in marking newly-changed parts
+.\"	of man pages.
+.\"
+.\" .VE
+.\"	End of vertical sidebar.
+.\"
+.\" .DS
+.\"	Begin an indented unfilled display.
+.\"
+.\" .DE
+.\"	End of indented unfilled display.
+.\"
+'\"	# Heading for Sprite man pages
+.de HS
+.if '\\$2'cmds'       .TH \\$1 1 \\$3 \\$4
+.if '\\$2'lib'        .TH \\$1 3 \\$3 \\$4
+.if '\\$2'tcl'        .TH \\$1 3 \\$3 \\$4
+.if '\\$2'tk'         .TH \\$1 3 \\$3 \\$4
+.if t .wh -1.3i ^B
+.nr ^l \\n(.l
+.ad b
+..
+'\"	# Start an argument description
+.de AP
+.ie !"\\$4"" .TP \\$4
+.el \{\
+.   ie !"\\$2"" .TP \\n()Cu
+.   el          .TP 15
+.\}
+.ie !"\\$3"" \{\
+.ta \\n()Au \\n()Bu
+\&\\$1	\\fI\\$2\\fP	(\\$3)
+.\".b
+.\}
+.el \{\
+.br
+.ie !"\\$2"" \{\
+\&\\$1	\\fI\\$2\\fP
+.\}
+.el \{\
+\&\\fI\\$1\\fP
+.\}
+.\}
+..
+'\"	# define tabbing values for .AP
+.de AS
+.nr )A 10n
+.if !"\\$1"" .nr )A \\w'\\$1'u+3n
+.nr )B \\n()Au+15n
+.\"
+.if !"\\$2"" .nr )B \\w'\\$2'u+\\n()Au+3n
+.nr )C \\n()Bu+\\w'(in/out)'u+2n
+..
+'\"	# BS - start boxed text
+'\"	# ^y = starting y location
+'\"	# ^b = 1
+.de BS
+.br
+.mk ^y
+.nr ^b 1u
+.if n .nf
+.if n .ti 0
+.if n \l'\\n(.lu\(ul'
+.if n .fi
+..
+'\"	# BE - end boxed text (draw box now)
+.de BE
+.nf
+.ti 0
+.mk ^t
+.ie n \l'\\n(^lu\(ul'
+.el \{\
+.\"	Draw four-sided box normally, but don't draw top of
+.\"	box if the box started on an earlier page.
+.ie !\\n(^b-1 \{\
+\h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.el \}\
+\h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\l'|0u-1.5n\(ul'
+.\}
+.\}
+.fi
+.br
+.nr ^b 0
+..
+'\"	# VS - start vertical sidebar
+'\"	# ^Y = starting y location
+'\"	# ^v = 1 (for troff;  for nroff this doesn't matter)
+.de VS
+.mk ^Y
+.ie n 'mc \s12\(br\s0
+.el .nr ^v 1u
+..
+'\"	# VE - end of vertical sidebar
+.de VE
+.ie n 'mc
+.el \{\
+.ev 2
+.nf
+.ti 0
+.mk ^t
+\h'|\\n(^lu+3n'\L'|\\n(^Yu-1v\(bv'\v'\\n(^tu+1v-\\n(^Yu'\h'-|\\n(^lu+3n'
+.sp -1
+.fi
+.ev
+.\}
+.nr ^v 0
+..
+'\"	# Special macro to handle page bottom:  finish off current
+'\"	# box/sidebar if in box/sidebar mode, then invoked standard
+'\"	# page bottom macro.
+.de ^B
+.ev 2
+'ti 0
+'nf
+.mk ^t
+.if \\n(^b \{\
+.\"	Draw three-sided box if this is the box's first page,
+.\"	draw two sides but no top otherwise.
+.ie !\\n(^b-1 \h'-1.5n'\L'|\\n(^yu-1v'\l'\\n(^lu+3n\(ul'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.el \h'-1.5n'\L'|\\n(^yu-1v'\h'\\n(^lu+3n'\L'\\n(^tu+1v-\\n(^yu'\h'|0u'\c
+.\}
+.if \\n(^v \{\
+.nr ^x \\n(^tu+1v-\\n(^Yu
+\kx\h'-\\nxu'\h'|\\n(^lu+3n'\ky\L'-\\n(^xu'\v'\\n(^xu'\h'|0u'\c
+.\}
+.bp
+'fi
+.ev
+.if \\n(^b \{\
+.mk ^y
+.nr ^b 2
+.\}
+.if \\n(^v \{\
+.mk ^Y
+.\}
+..
+'\"	# DS - begin display
+.de DS
+.RS
+.nf
+.sp
+..
+'\"	# DE - end display
+.de DE
+.fi
+.RE
+.sp .5
+..
+.HS Tk_GetPixmap tk
+.BS
+.SH NAME
+Tk_GetPixmap, Tk_GetPixmapClipMask, Tk_DefinePixmap, Tk_NameOfPixmap, Tk_PixmapOfName, Tk_SizeOfPixmap, Tk_DepthOfPixmap, Tk_FreePixmap, Tk_GetPixmapFromData, Tk_CacheStatusOfPixmap, Tk_SetCacheStatusOfPixmap, Tk_DefaultCacheStatus, Tk_SetDefaultCacheStatus \- maintain database of color pixmaps
+.SH SYNOPSIS
+.nf
+\fB#include <tk.h>\fR
+.sp
+Pixmap
+\fBTk_GetPixmap(\fIinterp, tkwin, id\fB)\fR
+.sp
+Pixmap
+\fBTk_GetPixmapClipMask(\fIdisplay, pixmap\fB)\fR
+.sp
+int
+\fBTk_DefinePixmap(\fIinterp, nameId, tkwin, pixmap, clipMask, source, width, height, depth, format\fR)\fR
+.sp
+Tk_Uid
+\fBTk_NameOfPixmap(\fIdisplay, pixmap\fB)\fR
+.sp
+Pixmap
+\fBTk_PixmapOfName(\fIid, tkwin\fB)\fR
+.sp
+void
+\fBTk_SizeOfPixmap(\fIdisplay, pixmap, widthPtr, heightPtr\fB)\fR
+.sp
+int
+\fBTk_DepthOfPixmap(\fIdisplay, pixmap\fB)\fR
+.sp
+void
+\fBTk_FreePixmap(\fIdisplay, pixmap\fB)\fR
+.sp
+Pixmap
+\fBTk_GetPixmapFromData(\fIinterp, tkwin, name, source, width, height, depth, format\fB)\fR
+.sp
+int
+\fBTk_SavePixmap(\fIinterp, tkwin, fileName, pixmap, clipMask, width, height, format\fB)\fR
+.sp
+int
+\fBTk_UndefinePixmap(\fIinterp, name, tkwin\fB)\fR
+.sp
+int
+\fBTk_CacheStatusOfPixmap(\fIdisplay, pixmap\fB)\fR
+.sp
+int
+\fBTk_SetCacheStatusOfPixmap(\fIdisplay, pixmap, status\fB)\fR
+.sp
+int
+\fBTk_DefaultCacheStatus()\fR
+.sp
+int
+\fBTk_SetDefaultCacheStatus(\fIstatus\fB)\fR
+.SH ARGUMENTS
+.AS "unsigned long" *pixelPtr
+.AP Tcl_Interp *interp in
+Interpreter to use for error reporting.
+.AP Display *display in
+Display that contains the pixmap.
+.AP Tk_Window tkwin in
+Token for window in which the pixmap will be used.
+.AP Tk_Uid id in
+Description of pixmap;  see below for possible values.
+.AP Tk_Uid *nameId in
+Name for new pixmap to be defined.
+.AP char *source in
+Data for pixmap, in standard bitmap format, or Xpm 3 format.
+Must be stored in static memory the value of which will
+never change.
+.AP "unsigned int" width in
+Width of pixmap.
+.AP "unsigned int" height in
+Height of pixmap.
+.AP "unsigned int" depth in
+Depth of pixmap.
+.AP "Pixmap" clipMask in
+The clipmask that should be used for drawing the pixmap.
+.AP "char *" filename in
+The filename used to save the pixmap.
+.AP "char *" format in
+The format that should be used. Possible values are \fIbitmap\fR
+and \fIxpm3\fR.
+.AP "unsigned int" *widthPtr out
+Pointer to word to fill in with \fIpixmap\fR's width.
+.AP "unsigned int" *heightPtr out
+Pointer to word to fill in with \fIpixmap\fR's height.
+.AP Pixmap pixmap in
+Identifier for a pixmap allocated by \fBTk_GetPixmap\fR.
+.AP int status in
+The cache status for a pixmap, or the global cache status.
+.BE
+
+.SH DESCRIPTION
+.PP
+These procedures manage a collection of pixmaps being used by an
+application.  The procedures allow pixmaps to be re-used efficiently,
+thereby avoiding server overhead, and they also allow pixmaps to
+be named with character strings.
+.PP
+\fBTk_GetPixmap\fR takes a Tk_Uid describing a pixmap as argument.
+It returns a Pixmap identifier for a pixmap corresponding to the
+description.  It re-uses an existing pixmap, if possible, and
+creates a new one otherwise.  At present, \fIid\fR must have
+one of the following forms:
+.TP 20
+\fB@\fIfileName\fR
+\fIFileName\fR must be the name of a file containing a bitmap
+description in the standard X11 or X10 format, or a file containing
+a pixmap description in the Xpm3 format.
+.TP 20
+\fIname\fR
+\fIName\fR must be the name of a pixmap defined previously with
+a call to \fBTk_DefinePixmap\fR.  The following names are pre-defined
+by Tk:
+.RS
+.TP 12
+\fBgray50\fR
+50% gray: a checkerboard pattern where every other bit is on.
+.TP 12
+\fBgray25\fR
+25% gray: a pattern where 25% of the bits are on, consisting of all the
+bit positions that can be reached by a chess knight starting at (0,0).
+.TP 12
+\fBhourglass\fR
+.VS
+An hourglass symbol.
+.TP 12
+\fBinfo\fR
+A large letter ``i''.
+.TP 12
+\fBquesthead\fR
+The silhouette of a human head, with a question mark in it.
+.TP 12
+\fBquestion\fR
+A large question-mark.
+.TP 12
+\fBwarning\fR
+A large exclamation point.
+.TP 12
+\fBbomb.xpm\fR
+An ignited bomb.
+.TP 12
+\fBexclaim.xpm\fR
+An exclamation point in a dot.
+.TP 12
+\fBexit.xpm\fR
+An exit sign.
+.TP 12
+\fBhourglass.xpm\fR
+An hourglass symbol.
+.TP 12
+\fBinfo.xpm\fR
+A large letter ``i''' in a dot.
+.TP 12
+\fBno_entry.xpm\fR
+A no entry sign.
+.TP 12
+\fBpreserver.xpm\fR
+A life preserver.
+.TP 12
+\fBquestion.xpm\fR
+A question mark in a dot.
+.TP 12
+\fBstop.xpm\fR
+A stop sign.
+.TP 12
+\fBtick.xpm\fR
+A tick symbol in a dot.
+.RE
+.VE
+.LP
+Under normal conditions, \fBTk_GetPixmap\fR
+returns an identifier for the requested pixmap.  If an error
+occurs in creating the pixmap, such as when \fIid\fR refers
+to a non-existent file, then \fBNone\fR is returned and an error
+message is left in \fIinterp->result\fR.
+.PP
+\fBTk_GetPixmapClipMask\fR takes a Pixmap identifier as argument.
+It returns a Pixmap identifier for the clipmask associated to the
+given pixmap.
+.PP
+\fBTk_DefinePixmap\fR associates a name with
+in-memory pixmap data so that the name can be used in later
+calls to \fBTk_GetPixmap\fR.  It is also possible to specify an
+externally created \fIpixmap\fR and \fIclipMask\fR. The \fInameId\fR
+argument gives a name to the pixmap;  it must not have been used
+previously in a call to \fBTk_DefinePixmap\fR.
+The arguments \fIsource\fR, \fIwidth\fR, \fIheight\fR and \fIdepth\fR
+describe the pixmap. The argument \fIformat\fR specifies the format
+of the data. If no format is specified, the format is
+derived from the passed data.
+\fBTk_DefinePixmap\fR normally returns TCL_OK;  if an error occurs
+(e.g. a pixmap named \fInameId\fR has already been defined), then
+TCL_ERROR is returned and an error message is left in
+\fIinterp->result\fR.
+Note:  \fBTk_DefinePixmap\fR expects the memory pointed at by
+\fIsource\fR to be static:  \fBTk_DefinePixmap\fR doesn't make
+a private copy of this memory, but uses the bytes pointed at
+by \fIsource\fR later in calls to \fBTk_GetPixmap\fR.
+.PP
+Typically, \fBTk_DefinePixmap\fR is used by \fB#include\fR-ing a
+pixmap file directly into a C program and then referencing
+the variables defined by the file.
+For example, suppose there exists a file \fBstip.bitmap\fR,
+which was created by the \fBbitmap\fR program and contains
+a stipple pattern, or an Xpm3 pixmap.
+The following code uses \fBTk_DefinePixmap\fR to define a
+new bitmap named \fBfoo\fR:
+.nf
+.RS
+\fCPixmap bitmap;
+#include "stip.bitmap"
+Tk_DefinePixmap(interp, Tk_GetUid("foo"), stip_bits,
+	stip_width, stip_height, "bitmap");
+\&...
+bitmap = Tk_GetPixmap(interp, tkwin, Tk_GetUid("foo"));\fR
+.RE
+.fi
+This code causes the bitmap file to be read
+at compile-time and incorporates the bitmap information into
+the program's executable image.  The same bitmap file could be
+read at run-time using \fBTk_GetPixmap\fR:
+.nf
+.RS
+\fCPixmap bitmap;
+bitmap = Tk_GetPixmap(interp, tkwin, Tk_GetUid("@stip.bitmap"));\fR
+.RE
+.fi
+The second form is a bit more flexible (the file can be modified
+after the program has been compiled, or a different string can be
+provided to read a different file), but it is a little slower and
+requires the bitmap file to exist separately from the program.
+.PP
+\fBTk_GetPixmap\fR maintains a database of all the pixmaps that
+have been created. Whenever possible, it will return an existing
+pixmap rather than creating a new one.
+This approach can substantially reduce server overhead, so
+\fBTk_GetPixmap\fR should generally be used in preference to Xlib
+procedures like \fBXReadBitmapFile\fR or \fBXGetBitmapFromData\fR,
+which create a new bitmap on each call.
+.PP
+The pixmaps returned by \fBTk_GetPixmap\fR
+are shared, so callers should never modify them.
+If a pixmap must be modified dynamically, then it should be
+created by calling Xlib procedures such as \fBXReadBitmapFile\fR
+or \fBXCreatePixmap\fR directly.
+.PP
+The procedure \fBTk_NameOfPixmap\fR is roughly the inverse of
+\fBTk_GetPixmap\fR. Provided with an X pixmap argument, it
+returns the \fIid\fR that was passed to \fBTk_GetPixmap\fR when
+the pixmap was created.
+.PP
+The procedure \fBTk_PixmapOfName\fR is exactly the inverse of
+\fBTk_NameOfPixmap\fR. Provided with a name, it returns the
+\fIpixmap id\fR which is associated with that name.
+.PP
+\fBTk_SizeOfPixmap\fR returns the dimensions of its \fIpixmap\fR
+argument in the words pointed at by the \fIwidthPtr\fR and
+\fIheightPtr\fR arguments.
+.PP
+\fBTk_DepthOfPixmap\fR returns the depth of its \fIpixmap\fR
+argument.
+.PP
+When a pixmap returned by \fBTk_GetPixmap\fR
+is no longer needed, \fBTk_FreePixmap\fR should be called to release it.
+There should be exactly one call to \fBTk_FreePixmap\fR for
+each call to \fBTk_GetPixmap\fR.
+When a pixmap is no longer in use anywhere (i.e. it has been freed as
+many times as it has been gotten), \fBTk_FreePixmap\fR will release
+it to the X server and delete it from the database.
+.PP
+The procedure \fBTk_GetPixmapFromData\fR is a historical relic
+from a time before \fBTk_DefinePixmap\fR existed;  its use is
+discouraged nowadays, and it may be deleted soon.
+\fBTk_GetPixmapFromData\fR serves as a combination of
+\fBTk_DefinePixmap\fR and \fBTk_GetPixmap\fR:  given an in-memory
+description for a pixmap similar to what would be passed to
+\fBTk_DefinePixmap\fR (\fIsource, width, height \fRand\fI depth\fR),
+it returns a pixmap corresponding to the description that is
+suitable for use in window \fItkwin\fR.
+At present it does this by calling \fBTk_DefinePixmap\fR to
+define a name of the form ``\fB_tk\fInum\fR'' where \fInum\fR
+is an integer that starts at 1 and increments for each new
+combination of \fIsource\fR, \fIwidth\fR, \fIheight\fR and \fIdepth\fR.
+The parameter \fIname\fR allows you to specify a name directly. Then
+it calls \fBTk_GetPixmap\fR.
+\fBTk_GetPixmapFromData\fR keeps a database of names and
+data, so that if the same \fIsource\fR, \fIwidth\fR, \fIheight\fR
+and \fIdepth\fR are used again later, \fBTk_GetPixmapFromData\fR 
+will re-use the original name.
+.PP
+\fBTk_SavePixmap\fR saves the given \fIpixmap\fR and \fIclipMask\fR
+to the specified file \fIfileName\fR in the format selected with
+the \fIformat\fR parameter.
+.PP
+\fBTk_UndefinePixmap\fR undefines the given \fIpixmap\fR. This
+means that any association of \fIname\fR with a bitmap or pixmap
+is removed. This can be used to undefine names defined by
+Tk_DefinePixmap.
+.PP
+\fBTk_CacheStatusPixmap\fR returns the cache status for
+\fIpixmap\fR. The returned value is 0 or 1.
+.PP
+\fBTk_SetCacheStatusPixmap\fR sets the cache status
+\fIpixmap\fR to \fIstatus\fR. There is no return value. A
+pixmap that is cached is not destroyed when it is no longer
+needed. Instead, it remains in the Tk hash table for later
+use.
+.PP
+\fBTk_DefaultCacheStatus\fR returns the default cache
+status. The returned value is 0 or 1.
+.PP
+\fBTk_SetDefaultCacheStatus\fR returns the default cache
+status to \fIstatus\fR. Pixmaps that are loaded get this
+cache status by default.
+
+.SH BUGS
+In determining whether an existing pixmap can be used to satisfy
+a new request, \fBTk_GetPixmap\fR
+considers only the immediate value of its \fIid\fR argument.  For
+example, when a file name is passed to \fBTk_GetPixmap\fR,
+\fBTk_GetPixmap\fR will assume it is safe to re-use an existing
+pixmap created from the same file name, it will not check to
+see whether the file itself has changed, or whether the current
+directory has changed, thereby causing the name to refer to
+a different file.
+
+.SH KEYWORDS
+bitmap, pixmap

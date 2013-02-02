@@ -1,0 +1,78 @@
+Thanks to the people listed here for their help or their software :-):
+
+---------------------
+The TkPixmap patch is based upon the (great) TCL/TK package from:
+John Ousterhout
+University of California at Berkeley
+ouster@sprite.berkeley.edu.
+
+The XPM package from:
+Arnaud Le Hors
+GROUPE BULL
+BULL Research FRANCE -- Koala Project
+lehors@sophia.inria.fr.
+
+The gif reading routines from:
+Alfred Kayser (xgif)... does anybody know his address ? I
+would like to ask whether it is o.k. to use his code (I know
+it is a little late, but better late than never ;-).
+Minor pieces of code have been taken from the code published
+by jim frost and kirk johnson (xloadimage).
+
+The postscript output handling is from:
+Copyright (C) 1990-92 Bruce Schuchardt, Servio Corp.
+(xgrabsc).
+
+The pixmaps are taken (or better derived) from:
+the AIcons package (available at export.lcs.mit.edu)
+published by Anthony Thyssen (anthony@cit.gu.edu.au).
+
+The shared library support has been derived from the
+tcltk_shlib package written by:
+Xiaokun Zhu (xiaokun@stats.gla.ac.uk)
+
+---------------------
+
+my little sister for massive spellchecking!!
+
+Allen B. Downey
+Anders Dahlin
+Dan Mosedale
+David W. Smith
+Dietmar Theobald
+Frank Sauer                     - raw256 support
+Gerald W. Lester
+Henry A Rowley                  - enhanced postscript support
+Henry R. Tumblin                - display postscript support
+Jeff Zacks
+Jimmy Aitken
+J.K.Wight
+K Chinen
+Kennard	White                   - his pixmap patch
+Kevin B. Kenny
+Kingsley Kerce
+Marc VanHeyningen
+M. G. Christenson
+Mark Diekhans
+Mark Sterin
+Martin L. Smith                 - pixmap drawing (uxpm)
+Michael A. Walker
+Olaf Gerloff
+Philippe Kaplan
+Quy Tonthat
+Rainer Kliese                   - colormap management
+Randy Stiles
+Rick Wassum
+Spencer W. Thomas
+Steve Wampler
+Tommy Thorn
+Tony Yau Kit Chan
+Wolf-D. Ihlenfeldt
+W T Hewitt
+Yasuro KAWATA
+Zsolt Koppany
+
+...
+hopefully YOU with additional ideas !!!
+
+
